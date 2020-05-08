@@ -23,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public Map<String, Object> login(@RequestBody User user) throws {
+    public Map<String, Object> login(@RequestBody User user) throws ExecutionException, InterruptedException {
         Map<String, Object> result = firebaseService.getUserDetails(user.getEmail());
         System.out.println(result);
        if (result == null) {

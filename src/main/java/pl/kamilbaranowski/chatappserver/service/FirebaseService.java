@@ -70,7 +70,7 @@ public class FirebaseService {
         //dbf.collection("users").document("uid").listCollections();
     }
 
-    private boolean checkUserInDatabase(String uid) throws{
+    private boolean checkUserInDatabase(String uid) throws ExecutionException, InterruptedException {
         boolean ifUserInDatabase = false;
         ApiFuture<QuerySnapshot> users = FirestoreClient.getFirestore().collection("users").get();
         QuerySnapshot querySnapshot = users.get();
