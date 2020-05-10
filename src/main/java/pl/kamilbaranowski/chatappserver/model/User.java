@@ -10,14 +10,14 @@ public class User {
     private String email;
     private String username;
     private String password;
-    private boolean active;
+    private String status;
     private Date registrationDate;
 
-    public User(String email, String username, String password, boolean active) {
+    public User(String email, String username, String password, String status) {
         this.email = email;
         this.username = username;
         this.password = password;
-        this.active = active;
+        this.status = status;
         this.registrationDate = new Date(System.currentTimeMillis());
     }
 
@@ -33,8 +33,8 @@ public class User {
         return password;
     }
 
-    public boolean isActive() {
-        return active;
+    public String getStatus() {
+        return status;
     }
 
     public Date getRegistrationDate() {
