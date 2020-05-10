@@ -10,11 +10,10 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
+import pl.kamilbaranowski.chatappserver.model.Message;
 import pl.kamilbaranowski.chatappserver.model.User;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -29,6 +28,30 @@ public class FirebaseService {
 
         });
         return allUsers;
+    }
+
+    public Map<String, Object> getMessages(String sender, String receiver) throws ExecutionException, InterruptedException {
+        System.out.println("Sender: " + sender + "\nReceiver: " + receiver);
+        Map<String, Object> messages = new HashMap<>();
+        //ApiFuture<QuerySnapshot> messages = FirestoreClient.getFirestore().collection("messages").document(sender).collection(receiver).get();
+        FirestoreClient.getFirestore().collection("messages")
+                .document(sender)
+                .collection(receiver)
+                .listDocuments().forEach((document) -> {
+                    messages.put(document.getId(), document.toString());
+            System.out.println("asdsad");
+        });
+/*
+        QuerySnapshot querySnapshot = collection.get();
+        querySnapshot.forEach((messageSnapshot) -> {
+            messages.put(messageSnapshot.getId(), messageSnapshot.getData());
+        });
+
+ */
+        System.out.println("Messages: " + messages);
+
+
+        return messages;
     }
 
 /*
@@ -60,6 +83,15 @@ public class FirebaseService {
 
             saveUserDetail(user);
         }
+    }
+
+    public void saveMessage(Message message){
+        Firestore firestore = FirestoreClient.getFirestore();
+        ApiFuture<WriteResult> collectionsApiFuture = firestore.collection("messages")
+                .document(message.getSender())
+                .collection(message.getReceiver())
+                .document(message.getTimestamp().toString())
+                .set(message);
     }
 
     public void saveUserDetail(User user){
