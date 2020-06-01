@@ -1,16 +1,14 @@
 package pl.kamilbaranowski.chatappserver.controller;
 
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.kamilbaranowski.chatappserver.model.User;
 import pl.kamilbaranowski.chatappserver.service.FirebaseService;
 
@@ -39,13 +37,8 @@ public class UserController {
 
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public Map<String, Object> login(User user) throws ExecutionException, InterruptedException {
-        Map<String, Object> result = firebaseService.getUserDetails(user.getEmail());
-        System.out.println(result);
-       if (result == null) {
-            throw new UsernameNotFoundException(user.getEmail() + " not found.");
-       }
-        return result;
+    public String login(User user) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        return firebaseService.loginUser(user);
     }
 
     @GetMapping("/users")
@@ -57,5 +50,10 @@ public class UserController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping(path = "/users", params = {"uid"})
+    public ResponseEntity<?> getUserByUid(@RequestParam String uid) throws ExecutionException, InterruptedException {
+        return ResponseEntity.ok(firebaseService.getUsernameByUid(uid));
     }
 }
