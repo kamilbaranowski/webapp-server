@@ -1,10 +1,7 @@
 package pl.kamilbaranowski.chatappserver.service;
 
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
@@ -41,34 +38,47 @@ public class FirebaseService {
                     messages.put(document.getId(), document.toString());
             System.out.println("asdsad");
         });
-/*
-        QuerySnapshot querySnapshot = collection.get();
-        querySnapshot.forEach((messageSnapshot) -> {
-            messages.put(messageSnapshot.getId(), messageSnapshot.getData());
-        });
-
- */
         System.out.println("Messages: " + messages);
 
 
         return messages;
     }
 
-/*
+
     public String loginUser(User user) throws FirebaseAuthException, ExecutionException, InterruptedException {
-        String uid = user.getEmail();
+        String email = user.getEmail();
+        System.out.println(email);
         String token = null;
-        if(checkUserInDatabase(uid)){
-            token = generateToken(user);
+        String uid = getUserUid(user);
+        if(checkUserInDatabase(email)){
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("role", "user");
+            claims.put("customExp", System.currentTimeMillis() + 43200); //12h
+            token = FirebaseAuth.getInstance().createCustomToken(uid, claims);
         }
+        else {
+            System.out.println("No such user in database");
+        }
+
+
+
         System.out.println("Token: " + token);
-        /*DocumentReference documentReference = FirestoreClient.getFirestore().collection("users").document(String.valueOf(uid));
-        ApiFuture<DocumentSnapshot> future = documentReference.get();
-        DocumentSnapshot documentSnapshot = future.get();
-        System.out.println(documentSnapshot.getData());
         return token;
     }
-    */
+
+    public String getUserUid(User user) throws ExecutionException, InterruptedException {
+        ApiFuture<QuerySnapshot> users = FirestoreClient.getFirestore().collection("users").get();
+        QuerySnapshot querySnapshot = users.get();
+        String uid = null;
+        for (QueryDocumentSnapshot q: querySnapshot){
+            if (q.getData().get("email").equals(user.getEmail()) && q.getData().get("password").equals(user.getPassword())){
+                uid = q.getId();
+                break;
+            }
+        }
+        return uid;
+    }
+
     public void registerUser(User user) throws Exception {
         if (checkUserInDatabase(user.getEmail())){
             throw  new Exception("User exist");
@@ -78,10 +88,10 @@ public class FirebaseService {
                     .setEmail(user.getEmail())
                     .setPassword(user.getPassword())
                     .setDisabled(false);
+            UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+            String uid = userRecord.getUid();
 
-            FirebaseAuth.getInstance().createUser(request);
-
-            saveUserDetail(user);
+            saveUserDetail(new User(uid, user.getEmail(), user.getUsername(), user.getPassword(), user.getStatus()));
         }
     }
 
@@ -97,18 +107,17 @@ public class FirebaseService {
     public void saveUserDetail(User user){
         Firestore dbf = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionsApiFuture = dbf.collection("users")
-                .document(user.getEmail())
+                .document(user.getUid())
                 .set(user);
-        //dbf.collection("users").document("uid").listCollections();
     }
 
-    private boolean checkUserInDatabase(String uid) throws ExecutionException, InterruptedException {
+    private boolean checkUserInDatabase(String email) throws ExecutionException, InterruptedException {
         boolean ifUserInDatabase = false;
         ApiFuture<QuerySnapshot> users = FirestoreClient.getFirestore().collection("users").get();
         QuerySnapshot querySnapshot = users.get();
 
         for (QueryDocumentSnapshot q: querySnapshot){
-            if (q.getId().equals(uid)){
+            if (q.getData().get("email").equals(email)){
                 ifUserInDatabase = true;
                 break;
             }
@@ -128,5 +137,19 @@ public class FirebaseService {
             }
         }
         return user;
+    }
+
+    public Map<String, Object> getUsernameByUid(String uid) throws ExecutionException, InterruptedException {
+        System.out.println("UID: " + uid);
+        Map<String, Object> user = new HashMap<>();
+        //ApiFuture<QuerySnapshot> messages = FirestoreClient.getFirestore().collection("messages").document(sender).collection(receiver).get();
+        user = FirestoreClient.getFirestore().collection("users")
+                .document(uid)
+                .get()
+                .get()
+                .getData();
+
+        System.out.println("User: " + user.toString());
+    return user;
     }
 }
