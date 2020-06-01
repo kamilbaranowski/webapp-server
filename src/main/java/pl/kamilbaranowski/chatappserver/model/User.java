@@ -7,13 +7,15 @@ import java.util.Date;
 
 public class User {
 
+    private String uid;
     private String email;
     private String username;
     private String password;
     private String status;
     private Date registrationDate;
 
-    public User(String email, String username, String password, String status) {
+    public User(String uid, String email, String username, String password, String status) {
+        this.uid = uid;
         this.email = email;
         this.username = username;
         this.password = password;
@@ -35,6 +37,10 @@ public class User {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getUid() {
+        return uid;
     }
 
     public Date getRegistrationDate() {
