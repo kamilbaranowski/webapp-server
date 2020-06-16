@@ -1,13 +1,10 @@
 package pl.kamilbaranowski.chatappserver.controller;
 
-import com.google.api.gax.rpc.NotFoundException;
 import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import pl.kamilbaranowski.chatappserver.model.User;
 import pl.kamilbaranowski.chatappserver.service.FirebaseService;
@@ -36,8 +33,8 @@ public class UserController {
     }
 
 
-    @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public String login(User user) throws ExecutionException, InterruptedException, FirebaseAuthException {
+    @PostMapping(consumes = { MediaType.APPLICATION_FORM_URLENCODED_VALUE })
+    public Map<String, String> login(User user) throws ExecutionException, InterruptedException, FirebaseAuthException {
         return firebaseService.loginUser(user);
     }
 
