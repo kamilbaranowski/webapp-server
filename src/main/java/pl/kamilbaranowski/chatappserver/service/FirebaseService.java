@@ -45,7 +45,8 @@ public class FirebaseService {
     }
 
 
-    public String loginUser(User user) throws FirebaseAuthException, ExecutionException, InterruptedException {
+    public Map<String, String> loginUser(User user) throws FirebaseAuthException, ExecutionException, InterruptedException {
+        Map<String, String> jsonToken = new HashMap<>();
         String email = user.getEmail();
         System.out.println(email);
         String token = null;
@@ -55,6 +56,7 @@ public class FirebaseService {
             claims.put("role", "user");
             claims.put("customExp", System.currentTimeMillis() + 43200); //12h
             token = FirebaseAuth.getInstance().createCustomToken(uid, claims);
+            jsonToken.put("token", token);
         }
         else {
             System.out.println("No such user in database");
@@ -63,7 +65,7 @@ public class FirebaseService {
 
 
         System.out.println("Token: " + token);
-        return token;
+        return jsonToken;
     }
 
     public String getUserUid(User user) throws ExecutionException, InterruptedException {
@@ -76,6 +78,7 @@ public class FirebaseService {
                 break;
             }
         }
+        System.out.println("User UID: " + uid + "\nGiven user: " + user.toString());
         return uid;
     }
 
