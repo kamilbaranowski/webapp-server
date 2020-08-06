@@ -6,9 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.kamilbaranowski.chatappserver.exception.model.InvalidEmailException;
 import pl.kamilbaranowski.chatappserver.model.User;
 import pl.kamilbaranowski.chatappserver.service.FirebaseService;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -23,11 +25,12 @@ public class UserController {
 
 
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<?> register(User user){
+    public ResponseEntity<?> register(User user) throws InvalidEmailException {
+        System.out.println("Registration user: " + user.toString());
         try {
             firebaseService.registerUser(user);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            throw new InvalidEmailException("There is username with given email");
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

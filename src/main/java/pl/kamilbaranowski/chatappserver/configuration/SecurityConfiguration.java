@@ -29,11 +29,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         //TODO: Change password encoding (BCrypt)
         return NoOpPasswordEncoder.getInstance();
     }
+    /*
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedMethods("PUT", "GET", "DELETE", "OPTIONS", "PATCH", "POST");
-    }
+        registry.addMapping("/**").allowedMethods("PUT", "GET", "DELETE", "OPTIONS", "PATCH", "POST")
+        .allowedOrigins("http://localhost:4200/*");
 
+    }
+*/
     @Bean
     public CommonsRequestLoggingFilter requestLoggingFilter() {
         CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();

@@ -27,7 +27,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         httpServletResponse.addHeader("Access-Control-Expose-Headers", "xsrf-token");
         if ("OPTIONS".equals(httpServletRequest.getMethod())) {
             httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-            //filterChain.doFilter(httpServletRequest, httpServletResponse);
+            System.out.println("OPTIONS header");
         }
 
         else if (httpServletRequest.getRequestURI().contains("/users")) {
